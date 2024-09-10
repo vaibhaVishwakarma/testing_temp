@@ -1,0 +1,135 @@
+// You are using GCC
+#include<stdio.h>
+#include<string.h>
+#include<math.h>
+#define MAX 100
+
+typedef struct {
+    
+    char arr[MAX];
+    int top;
+    
+}stk;
+
+void init(stk* stack){
+    stack->top = -1;
+}
+int isEmpty(stk* stack){
+    return stack->top == -1;
+}
+int isFull(stk* stack){
+    return stack->top == MAX-1;
+}
+
+void push_back(stk* stack,int val){
+    if(!isFull(stack)){
+        stack->arr[++stack->top]=val;
+    }
+    else{
+        printf("overflow\n");
+    }
+}
+char seek(stk* stack){
+    return stack->arr[stack->top];
+}
+int pop(stk *stack){
+    if(isEmpty(stack)){
+        printf("underflow\n");
+        return 0;
+    }
+    return stack->arr[stack->top--];
+}
+
+int isop(char c){
+    if(c==')') return 1;
+    if(c=='+' || c=='-') return 2;
+    if(c=='*' || c=='/') return 3;
+    if(c=='^') return 4;
+    if(c=='(') return 5;
+    return 0;
+}
+
+void disp(stk* stack){
+    for(int i = 0; i<7 ; i++){
+        printf("%c \n",stack->arr[i]);
+    }
+}
+void cnvt(char* str , char*out){
+    stk stack; init(&stack);
+    push_back(&stack , '(');
+    int i = 0 , idx = 0;
+    while(str[i]!='\0'){
+        char c = str[i++];
+        // if(c == ' ') continue;
+        if(isop(c)==-1) out[idx++] = c;
+        else{
+        // disp(&stack);
+        // printf("%s\n",str);
+            int prcd = isop(c);
+            if(seek(&stack) == ')'){
+                while(seek(&stack) != '('){
+                    out[idx++] = pop(&stack);
+                    // printf("%c\n",out[idx-1]);
+                }
+                pop(&stack);
+            }
+            else if(isop(seek(&stack))<prcd){
+                push_back(&stack,c);
+            }
+            else{
+                while(isop(seek(&stack))<=prcd){
+                    out[idx++] = pop(&stack);
+                    // printf("%c\n",out[idx-1]);
+                }
+            }
+        }
+        
+        
+    while(seek(&stack) != '('){
+        out[idx++] = pop(&stack);
+        // printf("%c\n",out[idx-1]);
+            
+    pop(&stack);
+    out[idx] = '\0';
+    }
+}
+}
+int main(void){
+    char str[MAX] , ans[MAX],given[MAX];
+    fgets(str,MAX,stdin);
+    fgets(given,MAX,stdin);
+    cnvt(str,ans);
+    printf("%s",given);
+    
+    
+    //compare
+    int equal = 1;
+    for(int i = 0 ; i< strlen(ans);i++){
+        if(ans[i] != given[i]) {
+        printf("\nIncorrect");
+        equal = 0;
+        break;}
+    }
+    if(equal) printf("\ncorrect");
+    
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
