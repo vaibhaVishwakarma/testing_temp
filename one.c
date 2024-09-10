@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
+https://www.transfernow.net/dl/20240910tzKw8CC1
 typedef struct Process {
     int pid;
     int arrival_time;
