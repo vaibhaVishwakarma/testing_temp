@@ -550,3 +550,269 @@ sums_sapply <- sapply(list_of_numbers, sum)
 print("\nSums of vectors in list (sapply - returns a vector):")
 print(sums_sapply)
 ```
+
+Okay, let's move on to the next three topics:
+
+9.  Data frame operations
+10. Data wrangling
+11. Plot creation
+
+---
+
+### 9. Data frame operations
+
+Data frames are the most commonly used data structure in R for storing tabular data. They are essentially lists of vectors of equal length, where each vector represents a column.
+
+**Explanation:**
+Data frames are ideal for representing datasets where each row is an observation and each column is a variable, potentially of different data types. R provides extensive capabilities for creating, accessing, subsetting, and modifying data frames.
+
+**Demo Snippets:**
+
+**Example 1: Creating a data frame (from `lab5.R`)**
+
+```r
+planets <- c("Mercury", "Venus", "Earth", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune")
+diameters_km <- c(4879, 12104, 12742, 6779, 139820, 116460, 50724, 49244)
+distances_million_km <- c(57.9, 108.2, 149.6, 227.9, 778.5, 1432, 2867, 4515)
+orbital_periods_days <- c(88, 225, 365, 687, 4333, 10759, 30687, 60190)
+no_of_moons <- c(0, 0, 1, 2, 95, 146, 28, 16)
+
+solar_df <- data.frame(
+  Planet = planets,
+  Diameter_km = diameters_km,
+  Distance_MillionKm = distances_million_km,
+  Orbital_Period_days = orbital_periods_days,
+  No_of_Moons = no_of_moons
+)
+print("Solar System Data Frame:")
+print(solar_df)
+```
+
+**Example 2: Accessing and subsetting data frame elements (from `lab5.R`)**
+
+*   Accessing columns using `$` or `[[ ]]`.
+*   Subsetting rows and columns using `[row_indices, column_indices]`.
+
+```r
+# Using solar_df from above
+
+# Access the 'Planet' column
+print("\nPlanet names (using $):")
+print(solar_df$Planet)
+
+# Access 'Diameter_km' and 'Distance_MillionKm' columns
+print("\nDiameter and Distance (using [[ ]]):")
+print(solar_df[, c("Diameter_km", "Distance_MillionKm")])
+
+# Display all terrestrial planets (Mercury, Venus, Earth, Mars)
+terrestrial_planets <- solar_df[solar_df$Planet %in% c("Mercury", "Venus", "Earth", "Mars"), ]
+print("\nTerrestrial Planets (filtered by name):")
+print(terrestrial_planets)
+
+# Find and display the planet with the maximum number of moons
+max_moons_planet <- solar_df[which.max(solar_df$No_of_Moons), ]
+print("\nPlanet with maximum number of moons:")
+print(max_moons_planet)
+```
+
+**Example 3: Modifying and adding columns (from `lab5.R`)**
+
+```r
+# Using solar_df from above
+
+# Add a new column: Orbital Period in Earth years (365 days = 1 year)
+solar_df$Orbital_Period_years <- solar_df$Orbital_Period_days / 365
+print("\nData Frame with Orbital Period in Years:")
+print(solar_df)
+
+# Modify an existing column (e.g., convert Diameter to meters)
+solar_df$Diameter_m <- solar_df$Diameter_km * 1000
+print("\nData Frame with Diameter in meters:")
+print(solar_df[, c("Planet", "Diameter_km", "Diameter_m")])
+```
+
+**Example 4: Sorting a data frame (from `lab5.R`)**
+
+```r
+# Using solar_df from above
+
+# Sort planets in ascending order of their distance from the Sun
+sorted_by_distance <- solar_df[order(solar_df$Distance_MillionKm), ]
+print("\nPlanets sorted by distance from Sun:")
+print(sorted_by_distance)
+
+# Sort by number of moons in descending order, then by diameter in ascending
+sorted_complex <- solar_df[order(-solar_df$No_of_Moons, solar_df$Diameter_km), ]
+print("\nPlanets sorted by moons (desc) then diameter (asc):")
+print(sorted_complex)
+```
+
+---
+
+### 10. Data wrangling
+
+Data wrangling involves cleaning, transforming, and organizing raw data into a usable format for analysis. This includes tasks like feature engineering, aggregation, and handling missing values.
+
+**Explanation:**
+R's base functions provide powerful tools for data wrangling. When dealing with more complex tasks, packages like `dplyr` and `tidyr` offer a more intuitive and efficient "grammar of data manipulation."
+
+**Demo Snippets (Base R examples for now, `dplyr` and `tidyr` will be covered later):**
+
+**Example 1: Feature Engineering (creating new variables) (from `lab7.R`)**
+
+```r
+# Sample data
+city_data_sample <- data.frame(
+  city = c("New York", "London", "Tokyo", "Cairo", "Sydney"),
+  population_millions = c(18.8, 9.6, 37.4, 21.3, 5.4)
+)
+
+# Create a new categorical variable 'size_category' based on population
+city_data_sample$size_category <- factor(
+  ifelse(city_data_sample$population_millions < 10, "Small_Medium", "Large"),
+  levels = c("Small_Medium", "Large")
+)
+print("City Data with Size Category:")
+print(city_data_sample)
+```
+
+**Example 2: Aggregation (summarizing data) (from `lab6.R`)**
+
+*   `tapply()` is a powerful base R function for applying a function to subsets of a vector, defined by a factor or list of factors.
+*   `table()` for frequency counts.
+
+```r
+# Sample data
+df_transactions <- data.frame(
+  Category = c("Electronics", "Clothing", "Electronics", "Grocery", "Clothing", "Electronics"),
+  Price = c(150, 250, 200, 500, 300, 180),
+  Quantity = c(1, 2, 1, 1, 1, 2),
+  PaymentMethod = c("Card", "Cash", "Card", "UPI", "Cash", "Card")
+)
+
+# Total sales per product category
+sales_category <- tapply(df_transactions$Price * df_transactions$Quantity,
+                         df_transactions$Category, sum, na.rm=TRUE)
+print("\nTotal Sales by Category:")
+print(sales_category)
+
+# Payment mode preference
+payment_pref <- table(df_transactions$PaymentMethod)
+print("\nPayment Mode Preference:")
+print(payment_pref)
+```
+
+**Example 3: Handling Missing Values (Creation and Imputation) (from `lab8.R` and `lab6.R`)**
+
+*   **Creation:** Intentionally introduce `NA`s.
+*   **Imputation (Median for numeric):** Replace `NA`s with the median.
+
+```r
+set.seed(123)
+data_with_na <- data.frame(
+  ID = 1:10,
+  Value1 = rnorm(10, 50, 10),
+  Value2 = c(10, 12, NA, 15, 18, NA, 20, 22, 25, 28)
+)
+data_with_na$Value1[sample(1:10, 2)] <- NA # Introduce more NAs in Value1
+
+print("Data before imputation:")
+print(data_with_na)
+print("Missing values count:")
+print(colSums(is.na(data_with_na)))
+
+# Impute missing 'Value1' with its median
+median_value1 <- median(data_with_na$Value1, na.rm = TRUE)
+data_with_na$Value1[is.na(data_with_na$Value1)] <- median_value1
+
+# Impute missing 'Value2' with its median
+median_value2 <- median(data_with_na$Value2, na.rm = TRUE)
+data_with_na$Value2[is.na(data_with_na$Value2)] <- median_value2
+
+print("\nData after median imputation:")
+print(data_with_na)
+print("Missing values count after imputation:")
+print(colSums(is.na(data_with_na)))
+```
+
+---
+
+### 11. Plot creation
+
+Visualization is key to understanding data. R's base `graphics` package offers a wide range of plot types for exploratory data analysis.
+
+**Explanation:**
+Base R plotting functions (`plot()`, `hist()`, `boxplot()`, `barplot()`, `pie()`, `pairs()`) allow for quick and effective creation of static plots. Parameters like `main`, `xlab`, `ylab`, `col`, `pch`, `type`, `lwd`, `lty` are used to customize the appearance. `par(mfrow=...)` is used to arrange multiple plots.
+
+**Demo Snippets:**
+
+**Example 1: Histogram (Distribution of a single numeric variable) (from `lab10.R`)**
+
+```r
+# Using mtcars dataset
+data(mtcars)
+
+hist(mtcars$mpg, main="MPG Distribution", xlab="Miles Per Gallon",
+     col="lightblue", breaks=10, freq = FALSE)
+# Add a vertical line for the mean
+abline(v=mean(mtcars$mpg), col="red", lwd=2, lty=2)
+# Add density line
+lines(density(mtcars$mpg), col="blue", lwd=2)
+```
+
+**Example 2: Boxplot (Distribution and comparison across categories) (from `lab10.R`)**
+
+```r
+# Using iris dataset
+data(iris)
+
+boxplot(Sepal.Width ~ Species, data=iris, main="Sepal Width by Species",
+        xlab="Species", ylab="Sepal Width (cm)",
+        col=c("red", "green", "blue"))
+```
+
+**Example 3: Scatter Plot (Relationship between two numeric variables) (from `lab10.R`)**
+
+```r
+# Using mtcars dataset
+
+plot(mtcars$wt, mtcars$mpg, main="MPG vs Weight",
+     xlab="Weight (1000 lbs)", ylab="MPG", pch=19, col="darkblue")
+# Add a linear regression line
+abline(lm(mpg ~ wt, data=mtcars), col="red", lwd=2)
+# Add correlation coefficient as text
+text(4, 30, paste("r =", round(cor(mtcars$wt, mtcars$mpg), 3)), col="red")
+```
+
+**Example 4: Bar Plot (Categorical frequencies or aggregated values) (from `lab6.R`)**
+
+```r
+# Sample data for categories and sales
+sales_category <- c(Electronics = 12000, Clothing = 8500, Grocery = 15000, Furniture = 6000)
+
+barplot(sales_category, main="Total Sales by Category", ylab="Sales Amount", col="skyblue")
+```
+
+**Example 5: Arranging Multiple Plots (`par(mfrow)`) (from `lab10.R`)**
+
+```r
+# Arrange plots in a 2x2 grid
+oldpar <- par(mfrow = c(2, 2))
+
+# Plot 1: Histogram of hp
+hist(mtcars$hp, main="Horsepower Distribution", xlab="HP", col="lightgreen")
+
+# Plot 2: Boxplot of qsec
+boxplot(mtcars$qsec, main="1/4 Mile Time Boxplot", ylab="Qsec", col="lightcoral")
+
+# Plot 3: Scatter plot disp vs drat
+plot(mtcars$disp, mtcars$drat, main="Displacement vs Rear Axle Ratio",
+     xlab="Displacement", ylab="Drat", pch=16, col="purple")
+
+# Plot 4: Bar plot of cylinder counts
+cyl_counts <- table(mtcars$cyl)
+barplot(cyl_counts, main="Cylinder Counts", xlab="Number of Cylinders", ylab="Frequency", col="orange")
+
+# Reset plotting layout to default after plotting
+par(oldpar)
+```
