@@ -349,3 +349,204 @@ filtered_customers <- data_subset[data_subset$region == "North" & data_subset$cu
 print("Filtered Customers (North region and age > 40):")
 print(filtered_customers)
 ```
+
+
+Great! Let's continue with the next three topics:
+
+6.  Proper matrix construction and subsetting
+7.  Array operations
+8.  List operations
+
+---
+
+### 6. Proper matrix construction and subsetting
+
+Matrices in R are 2-dimensional homogeneous data structures. They are fundamental for numerical computing, especially in linear algebra and statistical modeling.
+
+**Explanation:**
+Matrices are created using the `matrix()` function, specifying the data, number of rows, and number of columns. Elements can be accessed using `[row, column]` indexing. `colnames()` and `rownames()` can be used to label the dimensions, improving readability.
+
+**Demo Snippets:**
+
+**Example 1: Creating a matrix (from `lab5.R`)**
+
+```r
+# Data for planets: Diameter (km) and Distance from Sun (million km)
+diameters_km <- c(4879, 12104, 12742, 6779, 139820, 116460, 50724, 49244)
+distances_million_km <- c(57.9, 108.2, 149.6, 227.9, 778.5, 1432, 2867, 4515)
+planets <- c("Mercury", "Venus", "Earth", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune")
+
+# Create a matrix with 8 rows (for planets) and 2 columns (for properties)
+# By default, matrix fills by column
+solar_matrix <- matrix(c(diameters_km, distances_million_km), nrow = 8, ncol = 2)
+
+# Assign meaningful column and row names
+colnames(solar_matrix) <- c("Diameter_km", "Distance_MillionKm")
+rownames(solar_matrix) <- planets
+
+print("Solar System Matrix:")
+print(solar_matrix)
+```
+
+**Example 2: Subsetting a matrix (from `lab5.R`)**
+
+*   Subsetting allows you to select specific rows, columns, or individual elements.
+*   Leaving a dimension blank selects all elements along that dimension.
+
+```r
+# Using the solar_matrix created above
+
+# Extract and display the values for the outer planets (Jupiter to Neptune)
+# Jupiter is the 5th row, Neptune is the 8th row
+outer_planets_matrix <- solar_matrix[5:8, ]
+print("\nOuter Planets Matrix (rows 5 to 8, all columns):")
+print(outer_planets_matrix)
+
+# Get the diameter of Earth
+earth_diameter <- solar_matrix["Earth", "Diameter_km"]
+print(paste("\nEarth's Diameter (km):", earth_diameter))
+
+# Get all distances from the Sun
+all_distances <- solar_matrix[, "Distance_MillionKm"]
+print(paste("\nDistances from Sun (million km):", paste(all_distances, collapse = ", ")))
+```
+
+---
+
+### 7. Array operations
+
+Arrays in R are N-dimensional homogeneous data structures. They are generalizations of matrices (which are 2-dimensional arrays).
+
+**Explanation:**
+Arrays are created using the `array()` function, specifying the data and the `dim` argument for dimensions. Similar to matrices, elements are accessed using `[...]` indexing, where each dimension has its own index.
+
+**Demo Snippets:**
+
+**Example 1: Creating a 2D array (similar to a matrix) (from `lab5.R`)**
+
+```r
+# Data for planets and their orbital periods in days
+planets_1005 <- c("Mercury", "Venus", "Earth", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune")
+orbital_periods_days_1005 <- c(88, 225, 365, 687, 4333, 10759, 30687, 60190)
+
+# Combine into a 2D array
+# The data is given first, then dimensions (8 rows, 2 columns)
+solar_array <- array(c(planets_1005, orbital_periods_days_1005), dim = c(8, 2))
+
+# Assign dimnames for clarity (list of row names, list of column names)
+dimnames(solar_array) <- list(NULL, c("Planet", "Orbital_Period_Days"))
+
+print("Solar System Array (2D):")
+print(solar_array)
+```
+
+**Example 2: Subsetting an array (from `lab5.R`)**
+
+```r
+# Using the solar_array created above
+
+# Display the orbital period of Earth using array indexing
+# Find the row index for "Earth"
+earth_index <- which(solar_array[, "Planet"] == "Earth")
+earth_orbital_period <- solar_array[earth_index, "Orbital_Period_Days"]
+print(paste("\nOrbital period of Earth:", earth_orbital_period, "days"))
+
+# Get all orbital periods
+all_orbital_periods <- solar_array[, "Orbital_Period_Days"]
+print(paste("\nAll Orbital Periods (days):", paste(all_orbital_periods, collapse = ", ")))
+
+# Create a 3D array example (e.g., Temperature readings for cities over months for different years)
+temp_data <- c(runif(3*4*2, 10, 30)) # 3 cities, 4 months, 2 years
+temp_array <- array(temp_data, dim = c(3, 4, 2),
+                    dimnames = list(
+                      c("NY", "LA", "CHI"),
+                      c("Jan", "Feb", "Mar", "Apr"),
+                      c("2023", "2024")
+                    ))
+print("\nExample 3D Array:")
+print(temp_array)
+
+# Access February temperatures for all cities in 2024
+feb_2024_temps <- temp_array[, "Feb", "2024"]
+print(paste("\nFebruary Temperatures in 2024 (NY, LA, CHI):", paste(round(feb_2024_temps, 2), collapse = ", ")))
+```
+
+---
+
+### 8. List operations
+
+Lists in R are highly flexible data structures that can hold elements of different types, including other lists, vectors, matrices, and data frames.
+
+**Explanation:**
+Lists are created using the `list()` function. Elements can be named, which allows for intuitive access using `$` or `[[name]]`. Unnamed elements can be accessed by their numerical position using `[[position]]`.
+
+**Demo Snippets:**
+
+**Example 1: Creating a list with mixed data types (from `lab4.R` and `lab5.R`)**
+
+```r
+# From lab4.R (similar structure)
+zone_name <- paste("Zone", 1:3)
+rainfall <- sample(100:300, 3)
+population <- sample(5000:15000, 3)
+
+city_data_list <- list(
+  zones = zone_name,
+  rainfall = rainfall,
+  population = population,
+  date_recorded = as.Date("2025-10-26")
+)
+
+print("City Data List:")
+print(city_data_list)
+
+# From lab5.R
+earth_list_1005 <- list(
+  Name = "Earth",
+  Diameter_km = 12742,
+  Distance_MillionKm = 149.6,
+  Number_of_Moons = 1
+)
+
+print("\nEarth Properties List:")
+print(earth_list_1005)
+```
+
+**Example 2: Accessing and modifying list elements (from `lab4.R` and `lab5.R`)**
+
+```r
+# Using earth_list_1005 from above
+
+# Access elements using $ for named elements
+print(paste("\nEarth's Name:", earth_list_1005$Name))
+print(paste("Earth's Diameter (km):", earth_list_1005$Diameter_km))
+
+# Access elements using [[ ]] for named or indexed elements
+print(paste("Earth's Distance (million km):", earth_list_1005[["Distance_MillionKm"]]))
+print(paste("Earth's Number of Moons (by index):", earth_list_1005[[4]]))
+
+# Modify an element
+earth_list_1005$Number_of_Moons <- 2 # Let's imagine a new moon is discovered!
+print(paste("Updated Number of Moons:", earth_list_1005$Number_of_Moons))
+
+# Add a new element to the list
+earth_list_1005$Atmosphere_Composition <- c("Nitrogen", "Oxygen", "Argon")
+print("\nEarth List after adding Atmosphere_Composition:")
+print(earth_list_1005)
+```
+
+**Example 3: Applying functions to list elements (`lapply`, `sapply`)**
+
+```r
+list_of_numbers <- list(vec1 = c(1, 2, 3), vec2 = c(4, 5), vec3 = c(6, 7, 8, 9))
+
+# Calculate the sum of each vector in the list using lapply
+sums_lapply <- lapply(list_of_numbers, sum)
+print("\nSums of vectors in list (lapply - returns a list):")
+print(sums_lapply)
+
+# Calculate the sum of each vector in the list using sapply (simplifies to a vector if possible)
+sums_sapply <- sapply(list_of_numbers, sum)
+print("\nSums of vectors in list (sapply - returns a vector):")
+print(sums_sapply)
+```
