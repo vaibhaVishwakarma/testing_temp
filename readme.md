@@ -816,3 +816,537 @@ barplot(cyl_counts, main="Cylinder Counts", xlab="Number of Cylinders", ylab="Fr
 # Reset plotting layout to default after plotting
 par(oldpar)
 ```
+
+Alright, let's continue with the next three topics:
+
+12. creation(secondary) & handling of missing values (primary) \[note: na values also we have to create before anything]
+13. train test split resample.
+14. linear regression (base or multivariate) prediction, measure skewness and skewness transformation. RMSE, MAE, R-squared
+
+---
+
+### 12. Creation & Handling of Missing Values
+
+Missing values (NA - Not Available) are a common occurrence in real-world datasets. It's important to understand how to create them (for simulation) and, more importantly, how to handle them effectively.
+
+**Explanation:**
+Missing values can be introduced intentionally for testing imputation methods or can arise naturally in data collection. Handling strategies include removal, imputation (replacing NAs with estimated values), or using models that can inherently deal with NAs. The choice of method depends on the nature of the missingness and the specific analysis.
+
+**Demo Snippets:**
+
+**Example 1: Creation of Missing Values (from `lab8.R`, `lab9.R`, `lab11.R`, `lab6.R`)**
+
+*   Missing values are often introduced by randomly assigning `NA` to selected positions in a vector or data frame.
+
+```r
+set.seed(1005)
+n_records <- 100
+sample_data <- data.frame(
+  ID = 1:n_records,
+  Value1 = rnorm(n_records, 100, 10),
+  Category = sample(c("A", "B", "C"), n_records, replace = TRUE)
+)
+
+# Introduce 5% missing values in 'Value1'
+num_missing_value1 <- round(0.05 * n_records)
+missing_indices_value1 <- sample(1:n_records, num_missing_value1)
+sample_data$Value1[missing_indices_value1] <- NA
+
+# Introduce 3% missing values in 'Category'
+num_missing_category <- round(0.03 * n_records)
+missing_indices_category <- sample(1:n_records, num_missing_category)
+sample_data$Category[missing_indices_category] <- NA
+
+print("Data with Introduced Missing Values:")
+print(head(sample_data))
+print("\nMissing values count per variable:")
+print(colSums(is.na(sample_data)))
+```
+
+**Example 2: Handling Missing Values - Removal (`na.omit()`) (from `lab6.R`)**
+
+*   `na.omit()` removes any row that contains at least one `NA` value. This can lead to significant data loss if missingness is widespread.
+
+```r
+# Using sample_data with NAs from Example 1
+
+df_complete_cases <- na.omit(sample_data)
+print("\nData after removing rows with any NA (`na.omit`):")
+print(head(df_complete_cases))
+print("Original rows:", nrow(sample_data), " | Remaining rows:", nrow(df_complete_cases))
+```
+
+**Example 3: Handling Missing Values - Median Imputation (for numeric) (from `lab7.R`, `lab8.R`, `lab9.R`, `lab11.R`, `lab6.R`)**
+
+*   Replacing `NA`s in a numeric column with the column's median. This preserves the central tendency.
+
+```r
+# Using sample_data with NAs from Example 1
+
+# Impute 'Value1' with its median
+median_value1 <- median(sample_data$Value1, na.rm = TRUE)
+sample_data$Value1[is.na(sample_data$Value1)] <- median_value1
+
+print("\nData after median imputation for 'Value1':")
+print(head(sample_data))
+print("Missing values count after median imputation:")
+print(colSums(is.na(sample_data)))
+```
+
+**Example 4: Handling Missing Values - Mode Imputation (for categorical) (from `lab8.R`, `lab11.R`)**
+
+*   Replacing `NA`s in a categorical column with the most frequent category (mode).
+
+```r
+# Using sample_data with NAs from Example 1
+
+# Impute 'Category' with its mode
+mode_category <- names(which.max(table(sample_data$Category)))
+sample_data$Category[is.na(sample_data$Category)] <- mode_category
+
+print("\nData after mode imputation for 'Category':")
+print(head(sample_data))
+print("Missing values count after mode imputation:")
+print(colSums(is.na(sample_data)))
+```
+
+**Example 5: Handling Missing Values - Predictive Imputation (Linear Regression) (from `lab6.R`)**
+
+*   Predicting missing values using a regression model trained on available data.
+
+```r
+set.seed(123)
+df_reg_imp <- data.frame(
+  Feature1 = rnorm(20, 50, 5),
+  Feature2 = rnorm(20, 10, 2),
+  Target = rnorm(20, 150, 20)
+)
+# Introduce NAs in Target
+df_reg_imp$Target[sample(1:20, 5)] <- NA
+
+print("\nData for predictive imputation:")
+print(head(df_reg_imp))
+print("Missing values in Target before imputation:", sum(is.na(df_reg_imp$Target)))
+
+# Fit a linear model to predict 'Target' based on 'Feature1' and 'Feature2'
+# Use na.action=na.exclude to handle NAs during model fitting
+fit_model <- lm(Target ~ Feature1 + Feature2, data = df_reg_imp, na.action = na.exclude)
+
+# Predict missing 'Target' values
+predicted_target_values <- predict(fit_model, newdata = df_reg_imp)
+
+# Impute NAs in 'Target' with the predicted values
+df_reg_imp$Target[is.na(df_reg_imp$Target)] <- predicted_target_values[is.na(df_reg_imp$Target)]
+
+print("\nData after predictive imputation for 'Target':")
+print(head(df_reg_imp))
+print("Missing values in Target after imputation:", sum(is.na(df_reg_imp$Target)))
+```
+
+---
+
+### 13. Train Test Split Resample
+
+Splitting a dataset into training and testing sets is a crucial step in machine learning to evaluate model performance on unseen data and prevent overfitting. Resampling techniques (like cross-validation, though not explicitly shown in simple scripts) generalize this concept.
+
+**Explanation:**
+The training set is used to build the model, and the test set is used to evaluate how well the model generalizes to new, unseen data. A common split is 70-80% for training and the remainder for testing. Random sampling ensures that both sets are representative of the original data.
+
+**Demo Snippets:**
+
+**Example 1: Basic Train-Test Split by Random Sampling (from `lab8.R`)**
+
+```r
+set.seed(42) # For reproducibility
+
+# Create a sample data frame
+data_for_split <- data.frame(
+  Feature1 = rnorm(100, 10, 2),
+  Feature2 = runif(100, 0, 1),
+  Target = 5 + 2 * rnorm(100) + 3 * runif(100)
+)
+
+# Determine the size of the training set (e.g., 80%)
+train_size <- floor(0.8 * nrow(data_for_split))
+
+# Randomly select row indices for the training set
+train_indices <- sample(seq_len(nrow(data_for_split)), size = train_size)
+
+# Create the training and testing data frames
+train_data <- data_for_split[train_indices, ]
+test_data <- data_for_split[-train_indices, ]
+
+print("Dimensions of original data:", dim(data_for_split))
+print("Dimensions of training data:", dim(train_data))
+print("Dimensions of testing data:", dim(test_data))
+
+print("\nHead of Training Data:")
+print(head(train_data))
+print("\nHead of Testing Data:")
+print(head(test_data))
+```
+
+**Example 2: Train-Test Split based on a time variable (from `lab9.R`)**
+
+*   For time- series data, it's common to split based on time, using earlier data for training and later data for testing.
+
+```r
+# Sample time-series data
+df_time_series <- data.frame(
+  Year = 1990:2020,
+  Value = 100 + (1990:2020 - 1990) * 2 + rnorm(length(1990:2020), 0, 5)
+)
+
+# Define the split point (e.g., up to year 2010 for training)
+split_year <- 2010
+
+# Create training and future (test) sets
+train_ts <- df_time_series[df_time_series$Year <= split_year, ]
+future_ts <- df_time_series[df_time_series$Year > split_year, ]
+
+print("Years in Training Data:", range(train_ts$Year))
+print("Years in Future Data:", range(future_ts$Year))
+
+print("\nHead of Training Time Series Data:")
+print(head(train_ts))
+print("\nHead of Future Time Series Data:")
+print(head(future_ts))
+```
+
+---
+
+### 14. Linear regression (base or multivariate) prediction, measure skewness and skewness transformation. RMSE, MAE, R-squared
+
+This topic covers a core set of statistical modeling and data preprocessing techniques used in many analytical tasks.
+
+**Explanation:**
+Linear regression models the linear relationship between a dependent variable and one or more independent variables. Skewness describes the asymmetry of a distribution, and transformations can be applied to make distributions more symmetric, which often improves the performance of linear models. RMSE, MAE, and R-squared are common metrics to evaluate the accuracy and fit of regression models.
+
+**Demo Snippets:**
+
+**Example 1: Multivariate Linear Regression and Prediction (from `lab8.R`, `lab9.R`, `lab6.R`)**
+
+```r
+set.seed(123)
+# Create a sample data frame
+df_model <- data.frame(
+  X1 = rnorm(100, 50, 10),
+  X2 = runif(100, 10, 20),
+  Category = sample(c("A", "B"), 100, replace = TRUE),
+  Y = 5 + 0.5 * rnorm(100) + 2 * runif(100) + 10 * (sample(0:1, 100, replace = TRUE)) + rnorm(100, 0, 5)
+)
+
+# One-hot encode the categorical variable for regression
+df_model$CategoryB <- ifelse(df_model$Category == "B", 1, 0)
+df_model$Category <- NULL # Remove original categorical column
+
+# Split into train and test sets
+train_indices <- sample(1:nrow(df_model), 0.8 * nrow(df_model))
+train_set <- df_model[train_indices, ]
+test_set <- df_model[-train_indices, ]
+
+# Build a multivariate linear regression model
+# Y ~ . means 'Y' explained by all other variables in the data frame
+model <- lm(Y ~ ., data = train_set)
+print("Linear Regression Model Summary:")
+print(summary(model))
+
+# Make predictions on the test set
+predictions <- predict(model, newdata = test_set)
+print("\nFirst 5 Actual vs Predicted values on test set:")
+print(data.frame(Actual = head(test_set$Y, 5), Predicted = head(predictions, 5)))
+```
+
+**Example 2: Measure Skewness and Skewness Transformation (from `lab8.R`)**
+
+*   A custom function to calculate skewness.
+*   Applying a log transformation to reduce right-skewness.
+
+```r
+# Custom skewness function (from lab8.R)
+sk <- function(x) {
+  x <- x[!is.na(x)]
+  s <- sd(x)
+  n <- length(x)
+  if(s == 0 | n < 3) NA else sum((x - mean(x))^3) / ((n - 1) * s^3)
+}
+
+# Create a right-skewed variable
+right_skewed_data <- rexp(100, rate = 0.5) # Exponential distribution is right-skewed
+print(paste("Skewness of original right-skewed data:", round(sk(right_skewed_data), 3)))
+
+# Visualize original data
+hist(right_skewed_data, main="Original Right-Skewed Data", col="salmon")
+
+# Apply log transformation (log1p is log(1+x), safer for values near 0)
+transformed_data <- log1p(right_skewed_data)
+print(paste("Skewness after log transformation:", round(sk(transformed_data), 3)))
+
+# Visualize transformed data
+hist(transformed_data, main="Log-Transformed Data", col="lightgreen")
+```
+
+**Example 3: RMSE, MAE, R-squared (Model Evaluation) (from `lab8.R`, `lab9.R`)**
+
+*   Custom functions to calculate these common regression metrics.
+
+```r
+# Assuming 'test_set$Y' and 'predictions' are available from Example 1
+
+# Custom evaluation functions
+rmse <- function(actual, pred) {
+  sqrt(mean((actual - pred)^2))
+}
+mae <- function(actual, pred) {
+  mean(abs(actual - pred))
+}
+rsq <- function(actual, pred) {
+  1 - sum((actual - pred)^2) / sum((actual - mean(actual))^2)
+}
+
+actual_values <- test_set$Y
+predicted_values <- predictions
+
+rmse_val <- rmse(actual_values, predicted_values)
+mae_val <- mae(actual_values, predicted_values)
+rsq_val <- rsq(actual_values, predicted_values)
+
+print(paste("\nModel Evaluation Metrics:"))
+print(paste("RMSE:", round(rmse_val, 3)))
+print(paste("MAE:", round(mae_val, 3)))
+print(paste("R-squared:", round(rsq_val, 3)))
+```
+
+
+Okay, let's elaborate further on linear regression models and then on skewness and normalization techniques.
+
+---
+
+### More on Linear Regression Models
+
+Linear regression is a fundamental statistical method used to model the linear relationship between a dependent variable (target) and one or more independent variables (predictors).
+
+**Explanation:**
+The goal of linear regression is to find the best-fitting straight line (or hyperplane in multivariate cases) that describes how the dependent variable changes as the independent variables change.
+
+*   **Simple Linear Regression**: Involves one dependent variable and one independent variable.
+*   **Multivariate Linear Regression**: Involves one dependent variable and two or more independent variables.
+
+The model assumes a linear relationship, independence of observations, homoscedasticity (constant variance of residuals), and normality of residuals.
+
+**Demo Snippets:**
+
+**Example 1: Simple Linear Regression and Interpretation (`lab10.R` conceptual, `lab9.R` for `lm`)**
+
+Let's use a simple example to show the `lm` function and its `summary` output.
+
+```r
+data(mtcars)
+
+# Simple linear regression: Predict MPG based on Weight
+model_simple <- lm(mpg ~ wt, data = mtcars)
+
+print("Summary of Simple Linear Regression Model (MPG vs Weight):")
+print(summary(model_simple))
+
+# Interpretation of summary output:
+# - Coefficients: 'Estimate' gives the change in MPG for a one-unit increase in Weight.
+# - Std. Error: Standard error of the coefficient estimate.
+# - t value: Test statistic for the hypothesis that the coefficient is zero.
+# - Pr(>|t|): p-value, indicates significance of the coefficient.
+# - R-squared: Proportion of variance in MPG explained by Weight (0 to 1).
+# - F-statistic, p-value: Overall significance of the model.
+```
+
+**Example 2: Multivariate Linear Regression and Prediction (`lab9.R`)**
+
+`lab9.R` provides a good example of a multivariate linear model for population forecasting.
+
+```r
+set.seed(1005) # For reproducibility
+# Create a dummy data frame similar to df_all in lab9.R
+years_all <- 1950:2025
+n <- length(years_all)
+train_data_lm <- data.frame(
+  Year = years_all,
+  Population_clean = round(100 + 5*(years_all-1950) + rnorm(n,0,10), 2),
+  GDP_per_capita = round(1000 + 50*(years_all-1950) + rnorm(n,0,200), 2),
+  Fertility_Rate = round(6 - 0.05*(years_all-1950) + rnorm(n,0,0.5), 2),
+  Urbanization_pct = round(10 + 0.8*(years_all-1950) + rnorm(n,0,3), 2),
+  Literacy_Rate = round(50 + 1*(years_all-1950) + rnorm(n,0,2), 2)
+)
+
+# Simulate a future dataset for prediction
+future_data_lm <- data.frame(
+  Year = 2026:2050,
+  GDP_per_capita = round(1000 + 50*(2026:2050-1950) + rnorm(length(2026:2050),0,200), 2),
+  Fertility_Rate = round(6 - 0.05*(2026:2050-1950) + rnorm(length(2026:2050),0,0.5), 2),
+  Urbanization_pct = round(10 + 0.8*(2026:2050-1950) + rnorm(length(2026:2050),0,3), 2),
+  Literacy_Rate = round(50 + 1*(2026:2050-1950) + rnorm(length(2026:2050),0,2), 2)
+)
+
+
+# Model as in lab9.R
+model_multi <- lm(Population_clean ~ Year + GDP_per_capita + Fertility_Rate +
+                   Urbanization_pct + Literacy_Rate, data=train_data_lm)
+
+print("\nSummary of Multivariate Linear Regression Model (Population Forecast):")
+print(summary(model_multi))
+
+# Predict on new data
+forecast_population <- predict(model_multi, newdata=future_data_lm)
+print("\nFirst 5 Predicted Population Values for Future Years:")
+print(data.frame(Year = head(future_data_lm$Year, 5), Forecast = head(forecast_population, 5)))
+```
+
+**Example 3: Assessing Model Assumptions with Diagnostic Plots**
+
+R's `plot()` function for an `lm` object generates four standard diagnostic plots to check model assumptions.
+
+```r
+data(mtcars)
+model_simple <- lm(mpg ~ wt, data = mtcars)
+
+# Generate diagnostic plots
+# par(mfrow = c(2, 2)) # Uncomment to see all 4 plots at once
+plot(model_simple)
+# par(mfrow = c(1, 1)) # Reset plotting layout
+```
+
+*   **Residuals vs Fitted**: Checks for linearity and homoscedasticity. A random scatter around 0 is ideal.
+*   **Normal Q-Q**: Checks if residuals are normally distributed. Points should lie close to the diagonal line.
+*   **Scale-Location (or Spread-Location)**: Another check for homoscedasticity. A horizontal line with randomly spread points is desired.
+*   **Residuals vs Leverage**: Identifies influential points (outliers with high leverage).
+
+---
+
+### More on Skewness and Normalization
+
+**Skewness**:
+Skewness measures the asymmetry of the probability distribution of a real-valued random variable about its mean.
+
+*   **Positive Skew (Right-skewed)**: The tail on the right side of the distribution is longer or fatter. Mean > Median. Example: Income distribution, reaction times.
+*   **Negative Skew (Left-skewed)**: The tail on the left side of the distribution is longer or fatter. Mean < Median. Example: Exam scores (if most students do well).
+*   **Zero Skew**: The distribution is symmetric. Mean ≈ Median. Example: Normal distribution.
+
+**Why address skewness?**
+Many statistical models, especially linear regression, assume that the residuals (and sometimes the dependent variable) are normally distributed. Skewed data can violate this assumption, leading to:
+*   Biased parameter estimates.
+*   Incorrect standard errors and p-values.
+*   Reduced model accuracy and interpretability.
+Transforming skewed data can help achieve a more symmetric distribution, often making the data more suitable for these models.
+
+**Normalization (Scaling)**:
+Normalization (or scaling) refers to transforming data to a common scale, usually between 0 and 1 or with a mean of 0 and a standard deviation of 1. This is different from skewness reduction, though both are data transformations.
+
+*   **Min-Max Scaling**: Scales data to a fixed range, usually \[0, 1]. `(x - min(x)) / (max(x) - min(x))`
+*   **Standardization (Z-score normalization)**: Scales data to have a mean of 0 and a standard deviation of 1. `(x - mean(x)) / sd(x)`
+
+**When to use which?**
+*   **Skewness Reduction**: Applied to make the *shape* of the distribution more symmetric. Done *before* modeling if model assumptions require it.
+*   **Normalization/Scaling**: Applied to ensure that all features contribute equally to the model, especially for algorithms sensitive to feature magnitudes (e.g., k-NN, SVMs, neural networks, PCA). Done *after* skewness reduction if both are needed.
+
+**Demo Snippets:**
+
+**Example 1: Measuring Skewness (custom function from `lab8.R`)**
+
+```r
+# Custom skewness function (from lab8.R)
+sk <- function(x) {
+  x <- x[!is.na(x)]
+  s <- sd(x)
+  n <- length(x)
+  if(s == 0 | n < 3) NA else sum((x - mean(x))^3) / ((n - 1) * s^3)
+}
+
+# Generate different types of distributions
+set.seed(123)
+normal_data <- rnorm(1000, 0, 1)        # Approximately symmetric
+right_skewed_data <- rchisq(1000, df = 3) # Chi-squared is right-skewed
+left_skewed_data <- -rchisq(1000, df = 3) # Negative chi-squared is left-skewed
+
+print(paste("Skewness - Normal Data:", round(sk(normal_data), 3)))
+print(paste("Skewness - Right-Skewed Data:", round(sk(right_skewed_data), 3)))
+print(paste("Skewness - Left-Skewed Data:", round(sk(left_skewed_data), 3)))
+
+# Visualize to confirm
+par(mfrow = c(1, 3))
+hist(normal_data, main="Normal Data", col="lightblue")
+hist(right_skewed_data, main="Right-Skewed Data", col="salmon")
+hist(left_skewed_data, main="Left-Skewed Data", col="lightgreen")
+par(mfrow = c(1, 1))
+```
+
+**Example 2: Skewness Transformations (from `lab8.R`)**
+
+`lab8.R` provides a suite of transformation functions. Let's demonstrate some of them.
+
+```r
+# Transformations from lab8.R
+log1 <- function(x) log1p(x) # log(1+x), good for positive values including 0
+sqrt1 <- function(x) sqrt(x)
+bc <- function(x) (x^.5 - 1) / .5 # Simplified Box-Cox (lambda=0.5 for sqrt-like)
+yj <- function(x) { # Yeo-Johnson, handles positive and negative values
+  pos = x >= 0
+  res = rep(0, length(x))
+  res[pos] = log1p(x[pos])
+  res[!pos] = -log1p(-x[!pos])
+  res
+}
+rinv <- function(x) { # Rank-based Inverse Normal Transformation
+  ranks <- rank(x, ties.method = "average")
+  qnorm((ranks - 0.5) / length(x))
+}
+
+set.seed(456)
+original_skewed_data <- rexp(500, rate = 0.1) + 1 # Add 1 to avoid log(0) issues
+
+print(paste("Original Skewness:", round(sk(original_skewed_data), 3)))
+
+# Log Transformation
+log_transformed_data <- log1(original_skewed_data)
+print(paste("Log Transformed Skewness:", round(sk(log_transformed_data), 3)))
+
+# Square Root Transformation
+sqrt_transformed_data <- sqrt1(original_skewed_data)
+print(paste("Sqrt Transformed Skewness:", round(sk(sqrt_transformed_data), 3)))
+
+# Visualize the effects
+par(mfrow = c(1, 3))
+hist(original_skewed_data, main=paste("Original (Skew:", round(sk(original_skewed_data), 2), ")"), col="salmon")
+hist(log_transformed_data, main=paste("Log Transformed (Skew:", round(sk(log_transformed_data), 2), ")"), col="lightgreen")
+hist(sqrt_transformed_data, main=paste("Sqrt Transformed (Skew:", round(sk(sqrt_transformed_data), 2), ")"), col="lightblue")
+par(mfrow = c(1, 1))
+```
+
+**Example 3: Normalization (Scaling)**
+
+```r
+set.seed(789)
+feature_data <- data.frame(
+  Age = sample(18:70, 50, replace = TRUE),
+  Income = round(rlnorm(50, meanlog = 10, sdlog = 0.8)), # Log-normal for skewed income
+  Experience = sample(0:40, 50, replace = TRUE)
+)
+
+print("Original Feature Data (first 5 rows):")
+print(head(feature_data))
+
+# Min-Max Scaling (to range [0, 1])
+min_max_scale <- function(x) {
+  (x - min(x)) / (max(x) - min(x))
+}
+feature_data_minmax <- as.data.frame(lapply(feature_data, min_max_scale))
+print("\nMin-Max Scaled Data (first 5 rows):")
+print(head(feature_data_minmax))
+
+# Standardization (Z-score normalization, mean=0, sd=1)
+z_score_scale <- function(x) {
+  (x - mean(x)) / sd(x)
+}
+feature_data_zscore <- as.data.frame(lapply(feature_data, z_score_scale))
+print("\nZ-score Standardized Data (first 5 rows):")
+print(head(feature_data_zscore))
+```
+
+These examples should give you a deeper understanding of linear regression, its assumptions, how to measure and transform skewness, and the difference between skewness reduction and general data normalization.
