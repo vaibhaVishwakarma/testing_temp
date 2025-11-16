@@ -4967,6 +4967,39 @@ print("\nFirst 5 Actual vs Predicted values on test set:")
 print(data.frame(Actual = head(test_set$Y, 5), Predicted = head(predictions, 5)))
 ```
 
+**Output:**
+```text
+Linear Regression Model Summary:
+
+Call:
+lm(formula = Y ~ ., data = train_set)
+
+Residuals:
+     Min       1Q   Median       3Q      Max
+-12.6775  -4.9729  -0.2503   6.1115  11.5802
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)\n(Intercept) 23.61687    6.48372   3.642 0.000491 ***
+X1          -0.10153    0.09184  -1.106 0.272408
+X2          -0.45124    0.28263  -1.597 0.114510
+CategoryB    0.19168    1.67716   0.114 0.909313
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 7.128 on 76 degrees of freedom
+Multiple R-squared:  0.04942,	Adjusted R-squared:  0.0119
+F-statistic: 1.317 on 3 and 76 DF,  p-value: 0.275
+
+
+First 5 Actual vs Predicted values on test set:
+      Actual Predicted
+4   5.764378  11.82389
+11  8.780256  10.80147
+16  4.185750   9.24265
+24 22.468761  11.67070
+25 11.310056  14.61565
+```
+
 **Example 2: Measure Skewness and Skewness Transformation (from `lab8.R`)**
 
 *   A custom function to calculate skewness.
@@ -4994,6 +5027,21 @@ print(paste("Skewness after log transformation:", round(sk(transformed_data), 3)
 
 # Visualize transformed data
 hist(transformed_data, main="Log-Transformed Data", col="lightgreen")
+```
+
+**Output:**
+```text
+[1] "Skewness of original right-skewed data: 1.806"
+[1] "Skewness after log transformation: 0.395"
+```
+**Plots:**
+
+```C:/Users/vaibh/Downloads/dsc_fat/original_skew_hist.png
+(Image of original skewed data histogram)
+```
+
+```C:/Users/vaibh/Downloads/dsc_fat/log_transformed_data.png
+(Image of log-transformed data histogram)
 ```
 
 **Output:**
@@ -5035,6 +5083,14 @@ print(paste("\nModel Evaluation Metrics:"))
 print(paste("RMSE:", round(rmse_val, 3)))
 print(paste("MAE:", round(mae_val, 3)))
 print(paste("R-squared:", round(rsq_val, 3)))
+```
+
+**Output:**
+```text
+Model Evaluation Metrics:
+RMSE: 6.103
+MAE: 5.03
+R-squared: 0.108
 ```
 
 
