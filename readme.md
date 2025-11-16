@@ -3595,6 +3595,42 @@ print(p_line_trend)
 # The plot title will be bold and larger.
 ```
 
+**Output:**
+```text
+Warning message:
+package 'ggplot2' was built under R version 4.5.2
+
+Attaching package: 'dplyr'
+
+The following objects are masked from 'package:stats':
+
+    filter, lag
+
+The following objects are masked from 'package:base':
+
+    intersect, setdiff, setequal, union
+
+
+Attaching package: 'lubridate'
+
+The following objects are masked from 'package:base':
+
+    date, intersect, setdiff, union
+
+Warning message:
+package 'lubridate' was built under R version 4.5.2
+null device
+          1
+Generated plot: plot_multi_faceted_delay.png
+null device
+          1
+Generated plot: plot_flight_duration_trend.png
+```
+
+**Generated Plots:**
+*   Multi-Faceted Departure Delay Plot: ![](plot_multi_faceted_delay.png)
+*   Average Flight Duration Trend Plot: ![](plot_flight_duration_trend.png)
+
 ---
 
 ##### 6. Building Maps
