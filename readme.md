@@ -4996,6 +4996,16 @@ print(paste("Skewness after log transformation:", round(sk(transformed_data), 3)
 hist(transformed_data, main="Log-Transformed Data", col="lightgreen")
 ```
 
+**Output:**
+```text
+[1] "Skewness of original right-skewed data: 1.806"
+[1] "Skewness after log transformation: 0.395"
+```
+
+**Generated Plots:**
+*   Original Right-Skewed Data Histogram: ![](original_skew_hist.png)
+*   Log-Transformed Data Histogram: ![](transformed_skew_hist.png)
+
 **Example 3: RMSE, MAE, R-squared (Model Evaluation) (from `lab8.R`, `lab9.R`)**
 
 *   Custom functions to calculate these common regression metrics.
