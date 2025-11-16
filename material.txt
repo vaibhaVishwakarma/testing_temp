@@ -1,0 +1,49 @@
+Course Objectives
+1. To provide necessary knowledge on data manipulation and to perform analysis on
+the practical problems using a programming approach.
+2. To generate report and visualize the results in graphical form using programming
+tools.
+3. To learn and implement R programs for data science.
+
+Course Outcome
+Upon completion of the course, the student will be able to
+1. Engrave and use R language to solve problems.
+2. Design a suitable form for analysis from real-time data.
+3. Formulate insights from the data through statistical inferences.
+4. Evaluate and visualize the results, analyze the performance of the models.
+
+Module:1 Functions in R 
+Programming with R- Running R Code - Including Comments - Defining Variables,
+Functions -Built-in R Functions - Loading Functions - Writing Functions - Using Conditional
+Statements.
+
+Module:2 Vectors and Lists 
+Vector - Vectorized Operations - Vector Indices - Vector Filtering - Modifying Vectors, Lists -
+Creating Lists - Accessing List Elements - Modifying Lists- Applying Functions to Lists with
+lapply().
+
+Module:3 Data Wrangling 
+Understanding Data - The Data Generation Process - Finding Data - Types of Data -
+Interpreting Data - Using Data to Answer Questions - Data Frames - Working with Data
+Frames -Working with CSV Data.
+
+Module:4 Manipulating Data with dplyr and tidyr 
+Data Manipulation - Core dplyr Functions- Performing Sequential Operations -Analyzing
+Data Frames by Group - Joining Data Frames Together - dplyr in Action: Analyzing Flight
+Data- Reshaping Data with tidyr -From Columns to Rows: gather() - From Rows to
+Columns: spread() - tidyr in Action: Exploring Educational Statistics.
+
+Module:5 Accessing Databases and Web APIs 
+An Overview of Relational Databases -A Taste of SQL-Accessing a Database from R -
+Accessing Web APIs -RESTful Requests -Accessing Web APIs from R -Processing JSON
+Data -APIs in Action: Finding Cuban Food in Seattle.
+
+Module:6 Data Visualization 
+Designing Data Visualizations - The Purpose of Visualization - Selecting Visual Layouts -
+Choosing Effective Graphical Encodings - Expressive Data Displays - Enhancing Aesthetics
+- Creating Visualizations with ggplot2- A Grammar of Graphics - Basic Plotting with ggplot2 -
+Complex Layouts and Customization - Building Maps- ggplot2 in Action: A case study.
+
+Module:7 Interactive Visualization in R 
+The Plotly Package - The Rbokeh Package - The Leaflet Package - Interactive Visualization
+in Action: Exploring Changes to the City of Seattle.
